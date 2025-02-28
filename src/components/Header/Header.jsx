@@ -3,6 +3,10 @@ import { useRef, useState } from "react";
 import { HiCalendar, HiMinus, HiPlus, HiSearch } from "react-icons/hi";
 import { MdLocationOn } from "react-icons/md";
 import useOutSideClick from "../../hooks/useOutSideClick";
+import "react-date-range/dist/styles.css"; // main style file
+import "react-date-range/dist/theme/default.css"; // theme css file
+import { DateRange } from "react-date-range";
+import { format } from "date-fns";
 
 function Header() {
   const [destination, setDestination] = useState("");
@@ -13,6 +17,16 @@ function Header() {
     room: 1,
   });
 
+  const [date, setDate] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
+
+  const [openDate, setOpenDate] = useState(false);
+
   const handleOptions = (name, operation) => {
     setOptions((prev) => {
       return {
@@ -21,6 +35,9 @@ function Header() {
       };
     });
   };
+
+  const calenderRef = useRef();
+  useOutSideClick(calenderRef, "calender", () => setOpenDate(false));
 
   return (
     <div className="header">
@@ -38,9 +55,25 @@ function Header() {
           />
           <span className="seperator" />
         </div>
-        <div className="headerSearchItem">
+        <div className="headerSearchItem" ref={calenderRef}>
           <HiCalendar className="headerIcon dateIcon" />
-          <div className="dateDropDown">2023/06/23</div>
+          <div
+            id="calender"
+            className="dateDropDown"
+            onClick={() => setOpenDate(!openDate)}
+          >
+            {`${format(date[0].startDate, "MM/dd/yyyy")} to 
+            ${format(date[0].endDate, "MM/dd/yyyy")}`}
+          </div>
+          {openDate && (
+            <DateRange
+              onChange={(item) => setDate([item.selection])}
+              ranges={date}
+              className="date"
+              minDate={new Date()}
+              moveRangeOnFirstSelection={true}
+            />
+          )}
           <span className="seperator" />
         </div>
         <div className="headerSearchItem">
